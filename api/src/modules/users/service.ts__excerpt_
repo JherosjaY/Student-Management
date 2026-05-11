@@ -1,0 +1,29 @@
+update: async (
+  id: string,
+  input: UpdateUserBody,
+  requester: RequesterContext,
+): Promise<PublicUser> => {
+  const admin  = isAdmin(requester);
+  const isSelf = requester.id === id;
+  if (!admin && !isSelf) {
+    throw new ForbiddenError();
+  }
+
+  // Self can patch firstName/lastName/phone. Email + isActive are admin-only.
+  if (!admin && (input.email !== undefined || input.isActive !== undefined)) {
+    throw new ForbiddenError('Only admins can change email or active status');
+  }
+
+  const data: Prisma.UserUpdateInput = {};
+  if (input.firstName !== undefined) data.firstName = input.firstName;
+  if (input.lastName  !== undefined) data.lastName  = input.lastName;
+  if (input.phone     !== undefined) data.phone     = input.phone;
+  if (admin && input.email     !== undefined) { /* ...uniqueness check... */ }
+  if (admin && input.isActive  !== undefined) data.isActive = input.isActive;
+
+  const updated = await usersRepository.update(id, data);
+  if (updated === null) throw new NotFoundError('User');
+
+  logger.info({ userId: id, requesterId: requester.id }, 'user updated');
+  return toPublicUser(updated);
+},

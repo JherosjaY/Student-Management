@@ -1,0 +1,23 @@
+export const requireAuthLoader = (): Response | null => {
+  const { status } = useAuthStore.getState();
+  if (status !== 'authenticated') {
+    return redirect('/login');
+  }
+  return null;
+};
+
+export const redirectIfAuthenticatedLoader = (): Response | null => {
+  const { status } = useAuthStore.getState();
+  if (status === 'authenticated') {
+    return redirect('/dashboard');
+  }
+  return null;
+};
+
+export const requireRolesLoader =
+  (...allowed: RoleName[]) => (): Response | null => {
+    const { user } = useAuthStore.getState();
+    if (user === null) return redirect('/login');
+    const has = user.roles.some((r) => allowed.includes(r));
+    return has ? null : redirect('/forbidden');
+  };

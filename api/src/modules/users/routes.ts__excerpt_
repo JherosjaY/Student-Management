@@ -1,0 +1,18 @@
+export const usersRouter = Router();
+
+usersRouter.use(requireAuth);    // every endpoint below requires a valid token
+
+usersRouter.get('/',  validate({ query: listUsersQuerySchema }), controller.list);
+usersRouter.post('/', validate({ body:  createUserBodySchema }), controller.create);
+
+usersRouter.get('/:id',
+  validate({ params: userIdParamsSchema }),
+  controller.get);
+
+usersRouter.patch('/:id',
+  validate({ params: userIdParamsSchema, body: updateUserBodySchema }),
+  controller.update);
+
+usersRouter.delete('/:id',
+  validate({ params: userIdParamsSchema }),
+  controller.remove);

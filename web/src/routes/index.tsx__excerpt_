@@ -1,0 +1,44 @@
+export const router = createBrowserRouter([
+  {
+    path: '/',
+    errorElement: <RouteErrorBoundary />,
+    children: [
+      { index: true, element: <Navigate to="/dashboard" replace /> },
+
+      // Public auth routes — redirect to /dashboard if already signed in
+      { path: 'login',    loader: redirectIfAuthenticatedLoader, element: <LoginPage /> },
+      { path: 'register', loader: redirectIfAuthenticatedLoader, element: <RegisterPage /> },
+
+      // Authenticated branch under <AppShell>
+      {
+        loader: requireAuthLoader,
+        element: <AppShell />,
+        children: [
+          { path: 'dashboard', element: <DashboardPlaceholder /> },
+
+          // Admin-only
+          { path: 'users', loader: requireRolesLoader('ADMIN'),
+            children: [
+              { index: true, element: <UsersListPage /> },
+              { path: 'new', element: <UserNewPage /> },
+              { path: ':id', element: <UserDetailPage /> },
+            ] },
+          { path: 'teachers', loader: requireRolesLoader('ADMIN'),
+            element: <FeaturePlaceholder name="Teachers" /> },
+
+          // Admin or teacher
+          { path: 'students',   loader: requireRolesLoader('ADMIN', 'TEACHER'),
+            element: <FeaturePlaceholder name="Students" /> },
+          { path: 'attendance', loader: requireRolesLoader('ADMIN', 'TEACHER'),
+            element: <FeaturePlaceholder name="Attendance" /> },
+
+          // Any authenticated user
+          { path: 'grades', element: <FeaturePlaceholder name="Grades" /> },
+        ],
+      },
+
+      { path: 'forbidden', element: <ForbiddenPage /> },
+      { path: '*',         element: <NotFoundPage /> },
+    ],
+  },
+]);

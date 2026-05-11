@@ -1,0 +1,9 @@
+const registerBaseSchema = z.object({
+  email: emailSchema,
+  password: passwordSchema,
+  firstName: nameSchema('First name'),
+  lastName: nameSchema('Last name'),
+  phone: phoneSchema.optional(),
+});
+export const registerBodySchema = registerBaseSchema;
+export type RegisterBody = z.infer<typeof registerBodySchema>;
