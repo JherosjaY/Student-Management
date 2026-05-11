@@ -1,6 +1,0 @@
-import { env } from './config/env.js';
-
-app.use(rateLimit({
-  windowMs: env.RATE_LIMIT_WINDOW_MS,    // already a number
-  limit:    env.RATE_LIMIT_MAX,          // already a number
-}));

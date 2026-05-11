@@ -1,5 +1,0 @@
-import request from 'supertest';
-import { createApp } from '../../../app.js';
-
-const app = createApp();           // a fresh app per test file
-await request(app).post('/api/v1/auth/login').send({ ... });
