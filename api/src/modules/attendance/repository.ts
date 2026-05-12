@@ -6,7 +6,7 @@ export const attendanceRepository = {
     return prisma.attendance.findMany({
       where: { 
         classId, 
-        subjectId: subjectId || null,
+        subjectId: subjectId || undefined,
         date: {
           gte: new Date(d.setHours(0,0,0,0)),
           lte: new Date(d.setHours(23,59,59,999))
@@ -22,31 +22,44 @@ export const attendanceRepository = {
     const attendanceDate = new Date(d.setHours(0, 0, 0, 0));
     
     return prisma.$transaction(
-      records.map(r => prisma.attendance.upsert({
-        where: {
-          studentId_classId_subjectId_date: {
+      records.map(r => {
+        const whereCondition = subjectId 
+          ? {
+              studentId_classId_subjectId_date: {
+                studentId: r.studentId,
+                classId,
+                subjectId,
+                date: attendanceDate,
+              }
+            }
+          : {
+              studentId_classId_subjectId_date: {
+                studentId: r.studentId,
+                classId,
+                subjectId: '',
+                date: attendanceDate,
+              }
+            };
+
+        return prisma.attendance.upsert({
+          where: whereCondition,
+          update: { 
+            status: r.status, 
+            notes: r.notes, 
+            recordedById,
+            updatedAt: new Date()
+          },
+          create: {
             studentId: r.studentId,
             classId,
-            subjectId: subjectId || null,
+            subjectId,
             date: attendanceDate,
+            status: r.status,
+            notes: r.notes || null,
+            recordedById,
           }
-        },
-        update: { 
-          status: r.status, 
-          notes: r.notes, 
-          recordedById,
-          updatedAt: new Date()
-        },
-        create: {
-          studentId: r.studentId,
-          classId,
-          subjectId: subjectId || null,
-          date: attendanceDate,
-          status: r.status,
-          notes: r.notes || null,
-          recordedById,
-        }
-      }))
+        });
+      })
     );
   },
 

@@ -42,12 +42,12 @@ function Layout() {
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f1f5f9' }}>
       {/* Sidebar - Only show if authenticated AND not on a guest route */}
       {showSidebar && (
-        <aside style={{ width: '280px', backgroundColor: 'white', color: '#1e293b', display: 'flex', flexDirection: 'column', position: 'sticky', top: 0, height: '100vh', borderRight: '1px solid #e2e8f0' }}>
+        <aside style={{ width: '280px', backgroundColor: '#1e293b', color: '#f1f5f9', display: 'flex', flexDirection: 'column', position: 'sticky', top: 0, height: '100vh', borderRight: '1px solid #334155' }}>
           <div style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid #f1f5f9' }}>
             <div style={{ backgroundColor: '#2563eb', padding: '0.5rem', borderRadius: '0.5rem', color: 'white' }}>
               <School size={24} />
             </div>
-            <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.025em', color: '#1e293b' }}>STUDENT MGMT</span>
+            <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.025em', color: '#f1f5f9' }}>STUDENT MGMT</span>
           </div>
 
           <nav style={{ flex: 1, padding: '1.5rem 1rem' }}>
@@ -67,8 +67,8 @@ function Layout() {
                   padding: '0.875rem 1rem', 
                   borderRadius: '0.5rem', 
                   textDecoration: 'none', 
-                  color: isActive(item.path) ? '#2563eb' : '#64748b', 
-                  backgroundColor: isActive(item.path) ? '#eff6ff' : 'transparent',
+                  color: isActive(item.path) ? '#60a5fa' : '#cbd5e1', 
+                  backgroundColor: isActive(item.path) ? '#1e3a8a' : 'transparent',
                   marginBottom: '0.5rem',
                   transition: 'all 0.2s',
                   fontWeight: isActive(item.path) ? 600 : 500
@@ -83,19 +83,19 @@ function Layout() {
             ))}
           </nav>
 
-          <div style={{ padding: '1.5rem', borderTop: '1px solid #f1f5f9', backgroundColor: '#f8fafc' }}>
+          <div style={{ padding: '1.5rem', borderTop: '1px solid #334155', backgroundColor: '#0f172a' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '20px', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '20px', backgroundColor: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>
                 <UserIcon size={20} />
               </div>
               <div style={{ overflow: 'hidden' }}>
-                <div style={{ fontWeight: 600, fontSize: '0.875rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#1e293b' }}>{user.firstName} {user.lastName}</div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{user.roles[0]}</div>
+                <div style={{ fontWeight: 600, fontSize: '0.875rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#f1f5f9' }}>{user.firstName} {user.lastName}</div>
+                <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{user.roles[0]}</div>
               </div>
             </div>
             <button 
               onClick={logout}
-              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem', borderRadius: '0.375rem', border: '1px solid #e2e8f0', backgroundColor: 'white', color: '#ef4444', fontWeight: 600, cursor: 'pointer' }}
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem', borderRadius: '0.375rem', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#ef4444', fontWeight: 600, cursor: 'pointer' }}
             >
               <LogOut size={16} />
               Logout
