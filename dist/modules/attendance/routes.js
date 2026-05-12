@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import * as controller from './controller.js';
+import { requireAuth } from '../auth/middleware.js';
+import { validate } from '../../shared/middleware/index.js';
+import { markAttendanceSchema } from './dtos/index.js';
+const router = Router();
+router.get('/classes', requireAuth, controller.getClasses);
+router.get('/subjects', requireAuth, controller.getSubjects);
+router.get('/students/:classId', requireAuth, controller.getStudents);
+router.get('/:classId', requireAuth, controller.getAttendance);
+router.post('/', requireAuth, validate({ body: markAttendanceSchema }), controller.mark);
+export { router as attendanceRouter };
