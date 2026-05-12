@@ -17,7 +17,9 @@ export const requireAuth: RequestHandler = (req, _res, next) => {
     req.user = {
       id: payload.userId,
       email: payload.email,
-      roles: payload.roles as RoleName[],
+      firstName: payload.firstName || '',
+      lastName: payload.lastName || '',
+      roles: payload.roles as string[],
     };
     next();
   } catch (error) {
@@ -29,7 +31,7 @@ export const requireRoles = (allowedRoles: RoleName[]): RequestHandler => {
   return (req, _res, next) => {
     if (!req.user) throw new UnauthorizedError();
     
-    const hasRole = req.user.roles.some(role => allowedRoles.includes(role));
+    const hasRole = req.user.roles.some(role => allowedRoles.includes(role as RoleName));
     if (!hasRole) {
       throw new ForbiddenError('Insufficient permissions');
     }
