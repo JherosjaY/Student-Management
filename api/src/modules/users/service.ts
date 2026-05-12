@@ -47,5 +47,33 @@ export const userService = {
       where: { entityType: 'User', entityId: userId },
       orderBy: { createdAt: 'desc' }
     });
+  },
+
+  async getAllAuditLogs() {
+    return prisma.auditEvent.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 100
+    });
+  },
+
+  async findAllTeachers() {
+    const teachers = await prisma.user.findMany({
+      where: {
+        teacherProfile: { isNot: null }
+      },
+      select: {
+        firstName: true,
+        lastName: true,
+        teacherProfile: {
+          select: { id: true }
+        }
+      }
+    });
+
+    return teachers.map(t => ({
+      id: t.teacherProfile?.id,
+      firstName: t.firstName,
+      lastName: t.lastName
+    }));
   }
 };

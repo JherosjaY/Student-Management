@@ -3,7 +3,9 @@ import { Calendar, Users, Save, Loader2, CheckCircle2, AlertCircle } from 'lucid
 
 export const AttendancePage: React.FC = () => {
   const [classes, setClasses] = useState<any[]>([]);
+  const [subjects, setSubjects] = useState<any[]>([]);
   const [selectedClassId, setSelectedClassId] = useState('');
+  const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [students, setStudents] = useState<any[]>([]);
   const [attendanceMap, setAttendanceMap] = useState<Record<string, string>>({});
@@ -14,24 +16,29 @@ export const AttendancePage: React.FC = () => {
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    const fetchClasses = async () => {
+    const fetchInitialData = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/v1/attendance/classes', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setClasses(data);
-          if (data.length > 0 && !selectedClassId) setSelectedClassId(data[0].id);
+        const [cRes, sRes] = await Promise.all([
+          fetch('http://localhost:3000/api/v1/attendance/classes', { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch('http://localhost:3000/api/v1/attendance/subjects', { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+
+        const [cData, sData] = await Promise.all([cRes.json(), sRes.json()]);
+
+        if (cRes.ok && sRes.ok) {
+          setClasses(cData);
+          setSubjects(sData);
+          if (cData.length > 0 && !selectedClassId) setSelectedClassId(cData[0].id);
+          if (sData.length > 0 && !selectedSubjectId) setSelectedSubjectId(sData[0].id);
         } else {
-          setError(data.error?.message || 'Unauthorized access');
+          setError('Unauthorized or missing data');
         }
       } catch (err) {
         setError('Connection error');
       }
     };
-    fetchClasses();
-  }, [token, selectedClassId]);
+    fetchInitialData();
+  }, [token]);
 
   useEffect(() => {
     if (!selectedClassId) return;
@@ -45,7 +52,7 @@ export const AttendancePage: React.FC = () => {
         const sData = await sRes.json();
         setStudents(sData);
 
-        const aRes = await fetch(`http://localhost:3000/api/v1/attendance/${selectedClassId}?date=${date}`, {
+        const aRes = await fetch(`http://localhost:3000/api/v1/attendance/${selectedClassId}?date=${date}&subjectId=${selectedSubjectId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const aData = await aRes.json();
@@ -62,7 +69,7 @@ export const AttendancePage: React.FC = () => {
       }
     };
     fetchData();
-  }, [selectedClassId, date, token]);
+  }, [selectedClassId, selectedSubjectId, date, token]);
 
   const handleStatusChange = (studentId: string, status: string) => {
     setAttendanceMap({ ...attendanceMap, [studentId]: status });
@@ -98,6 +105,7 @@ export const AttendancePage: React.FC = () => {
         },
         body: JSON.stringify({
           classId: selectedClassId,
+          subjectId: selectedSubjectId,
           date,
           records
         })
@@ -137,7 +145,18 @@ export const AttendancePage: React.FC = () => {
               {classes.map(c => <option key={c.id} value={c.id}>{c.name} ({c.academicYear})</option>)}
             </select>
           </div>
-          <div style={{ width: '200px' }}>
+          <div style={{ flex: 1, minWidth: '200px' }}>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#475569', marginBottom: '0.375rem' }}>Select Subject</label>
+            <select 
+              value={selectedSubjectId}
+              onChange={(e) => setSelectedSubjectId(e.target.value)}
+              style={{ width: '100%', padding: '0.5rem', borderRadius: '0.375rem', border: '1px solid #cbd5e1' }}
+            >
+              <option value="">General / Homeroom</option>
+              {subjects.map(s => <option key={s.id} value={s.id}>{s.name} ({s.code})</option>)}
+            </select>
+          </div>
+          <div style={{ width: '180px' }}>
             <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#475569', marginBottom: '0.375rem' }}>Date</label>
             <input 
               type="date"

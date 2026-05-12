@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSubject, useCreateSubject, useUpdateSubject } from '../hooks';
+import { useTeachers } from '../../users/hooks';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 
 export const SubjectFormPage: React.FC = () => {
@@ -9,6 +10,7 @@ export const SubjectFormPage: React.FC = () => {
   const isEdit = !!id;
 
   const { data: subject, isLoading: isLoadingSubject } = useSubject(id || '');
+  const { data: teachers, isLoading: isLoadingTeachers } = useTeachers();
   const createMutation = useCreateSubject();
   const updateMutation = useUpdateSubject();
 
@@ -97,6 +99,24 @@ export const SubjectFormPage: React.FC = () => {
             placeholder="Describe the learning objectives..."
             style={{ width: '100%', padding: '0.625rem', borderRadius: '0.375rem', border: '1px solid #cbd5e1', resize: 'vertical' }}
           />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#475569', marginBottom: '0.5rem' }}>Instructor (Teacher)</label>
+          <select
+            required
+            value={formData.teacherId}
+            onChange={(e) => setFormData({ ...formData, teacherId: e.target.value })}
+            style={{ width: '100%', padding: '0.625rem', borderRadius: '0.375rem', border: '1px solid #cbd5e1', backgroundColor: 'white' }}
+          >
+            <option value="">Select a teacher...</option>
+            {teachers?.map((t: any) => (
+              <option key={t.id} value={t.id}>
+                {t.firstName} {t.lastName}
+              </option>
+            ))}
+          </select>
+          {isLoadingTeachers && <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' }}>Loading teachers...</div>}
         </div>
 
         <div>

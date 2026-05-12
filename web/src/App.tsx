@@ -32,7 +32,7 @@ function Layout() {
 
   const navItems = [
     { label: 'Subjects', path: '/subjects', icon: BookOpen, roles: ['ADMIN', 'TEACHER', 'STUDENT'] },
-    { label: 'Attendance', path: '/attendance', icon: Calendar, roles: ['ADMIN', 'TEACHER'] },
+    { label: 'Attendance', path: '/attendance', icon: Calendar, roles: ['TEACHER'] },
     { label: 'Audit Trail', path: '/audit', icon: ShieldCheck, roles: ['ADMIN'] },
   ];
 
@@ -42,12 +42,12 @@ function Layout() {
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f1f5f9' }}>
       {/* Sidebar - Only show if authenticated AND not on a guest route */}
       {showSidebar && (
-        <aside style={{ width: '280px', backgroundColor: '#1e293b', color: 'white', display: 'flex', flexDirection: 'column', position: 'sticky', top: 0, height: '100vh' }}>
-          <div style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid #334155' }}>
-            <div style={{ backgroundColor: '#2563eb', padding: '0.5rem', borderRadius: '0.5rem' }}>
+        <aside style={{ width: '280px', backgroundColor: 'white', color: '#1e293b', display: 'flex', flexDirection: 'column', position: 'sticky', top: 0, height: '100vh', borderRight: '1px solid #e2e8f0' }}>
+          <div style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid #f1f5f9' }}>
+            <div style={{ backgroundColor: '#2563eb', padding: '0.5rem', borderRadius: '0.5rem', color: 'white' }}>
               <School size={24} />
             </div>
-            <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.025em' }}>STUDENT MGMT</span>
+            <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.025em', color: '#1e293b' }}>STUDENT MGMT</span>
           </div>
 
           <nav style={{ flex: 1, padding: '1.5rem 1rem' }}>
@@ -67,10 +67,11 @@ function Layout() {
                   padding: '0.875rem 1rem', 
                   borderRadius: '0.5rem', 
                   textDecoration: 'none', 
-                  color: isActive(item.path) ? 'white' : '#94a3b8', 
-                  backgroundColor: isActive(item.path) ? '#2563eb' : 'transparent',
+                  color: isActive(item.path) ? '#2563eb' : '#64748b', 
+                  backgroundColor: isActive(item.path) ? '#eff6ff' : 'transparent',
                   marginBottom: '0.5rem',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  fontWeight: isActive(item.path) ? 600 : 500
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -82,19 +83,19 @@ function Layout() {
             ))}
           </nav>
 
-          <div style={{ padding: '1.5rem', borderTop: '1px solid #334155', backgroundColor: '#0f172a' }}>
+          <div style={{ padding: '1.5rem', borderTop: '1px solid #f1f5f9', backgroundColor: '#f8fafc' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '20px', backgroundColor: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '20px', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
                 <UserIcon size={20} />
               </div>
               <div style={{ overflow: 'hidden' }}>
-                <div style={{ fontWeight: 600, fontSize: '0.875rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.firstName} {user.lastName}</div>
-                <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{user.roles[0]}</div>
+                <div style={{ fontWeight: 600, fontSize: '0.875rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#1e293b' }}>{user.firstName} {user.lastName}</div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{user.roles[0]}</div>
               </div>
             </div>
             <button 
               onClick={logout}
-              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem', borderRadius: '0.375rem', border: '1px solid #334155', backgroundColor: 'transparent', color: '#f87171', fontWeight: 600, cursor: 'pointer' }}
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem', borderRadius: '0.375rem', border: '1px solid #e2e8f0', backgroundColor: 'white', color: '#ef4444', fontWeight: 600, cursor: 'pointer' }}
             >
               <LogOut size={16} />
               Logout

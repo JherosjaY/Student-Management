@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../../db/prisma.js';
 import { ValidationError } from '../../shared/errors/index.js';
+import { RoleName } from '@prisma/client';
+import { logAuditEvent } from '../../shared/utils/audit.js';
 
 const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'secret';
 
@@ -64,16 +66,74 @@ export const verifyEmail = async (userId: string, token: string) => {
   if (!storedToken) throw new ValidationError('Invalid or expired token');
   if (storedToken.expiresAt < new Date()) throw new ValidationError('Token expired');
 
-  // 3. Mark as verified
-  await prisma.$transaction([
-    prisma.user.update({
+  // 3. Mark as verified, Assign Role, Create Profile and Enroll
+  await prisma.$transaction(async (tx) => {
+    // Verify User
+    await tx.user.update({
       where: { id: tUserId },
       data: { emailVerifiedAt: new Date() },
-    }),
-    prisma.verificationToken.delete({
-      where: { id: storedToken.id }
-    })
-  ]);
+    });
+
+    // Assign STUDENT role (Upsert to avoid unique constraint error)
+    const studentRole = await tx.role.findUniqueOrThrow({
+      where: { name: RoleName.STUDENT }
+    });
+
+    await tx.userRole.upsert({
+      where: { userId_roleId: { userId: tUserId, roleId: studentRole.id } },
+      update: {},
+      create: { userId: tUserId, roleId: studentRole.id }
+    });
+
+    // Create Student Profile (Upsert)
+    const student = await tx.student.upsert({
+      where: { userId: tUserId },
+      update: {},
+      create: {
+        userId: tUserId,
+        studentNumber: `S-${Math.floor(1000 + Math.random() * 9000)}`,
+        enrollmentDate: new Date()
+      }
+    });
+
+    // Auto-enroll in the first available class
+    const defaultClass = await tx.class.findFirst({
+        where: { name: 'Grade 10 - Algebra' }
+    });
+
+    if (defaultClass) {
+      await tx.enrollment.upsert({
+        where: { 
+          studentId_classId_academicYear: { 
+            studentId: student.id, 
+            classId: defaultClass.id, 
+            academicYear: defaultClass.academicYear 
+          } 
+        },
+        update: { status: 'ACTIVE' },
+        create: {
+          studentId: student.id,
+          classId: defaultClass.id,
+          academicYear: defaultClass.academicYear,
+          status: 'ACTIVE'
+        }
+      });
+    }
+
+    // Clean up tokens
+    await tx.verificationToken.deleteMany({
+      where: { userId: tUserId }
+    });
+
+    // Log Audit Event
+    await logAuditEvent(tx, {
+      actorId: tUserId,
+      entityType: 'USER',
+      entityId: tUserId,
+      action: 'VERIFY_EMAIL',
+      diff: { status: 'VERIFIED' }
+    });
+  });
 
   console.log(`[DEBUG] Success! User ${tUserId} verified.`);
   return { success: true };
@@ -161,8 +221,8 @@ export const resetPassword = async (userId: string, token: string, newPassword: 
       where: { id: userId },
       data: { passwordHash },
     }),
-    prisma.passwordResetToken.delete({
-      where: { id: resetToken.id },
+    prisma.passwordResetToken.deleteMany({
+      where: { userId },
     }),
   ]);
 

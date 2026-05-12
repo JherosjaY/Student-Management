@@ -22,3 +22,8 @@ export const mark: RequestHandler = async (req, res) => {
   const result = await attendanceService.markAttendance(req.body, req.user);
   res.json(result);
 };
+
+export const getSubjects: RequestHandler = async (req, res) => {
+  const subjects = await attendanceService.getSubjects();
+  res.json(subjects);
+};

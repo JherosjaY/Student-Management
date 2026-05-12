@@ -1,13 +1,15 @@
 import { prisma } from '../../db/prisma.js';
 
 export const attendanceRepository = {
-  async findByClassAndDate(classId: string, date: Date) {
+  async findByClassAndDate(classId: string, date: Date, subjectId?: string) {
+    const d = new Date(date);
     return prisma.attendance.findMany({
       where: { 
         classId, 
+        subjectId: subjectId || null,
         date: {
-          gte: new Date(date.setHours(0,0,0,0)),
-          lte: new Date(date.setHours(23,59,59,999))
+          gte: new Date(d.setHours(0,0,0,0)),
+          lte: new Date(d.setHours(23,59,59,999))
         },
         deletedAt: null 
       },
@@ -15,17 +17,17 @@ export const attendanceRepository = {
     });
   },
 
-  async upsertMany(classId: string, date: Date, records: any[], recordedById: string) {
-    const attendanceDate = new Date(date.setHours(0, 0, 0, 0));
+  async upsertMany(classId: string, subjectId: string | null, date: Date, records: any[], recordedById: string) {
+    const d = new Date(date);
+    const attendanceDate = new Date(d.setHours(0, 0, 0, 0));
     
-    // We use a manual loop instead of prisma.$transaction with array.map 
-    // to ensure we can handle the sequence properly or use a real transaction.
     return prisma.$transaction(
       records.map(r => prisma.attendance.upsert({
         where: {
-          studentId_classId_date: {
+          studentId_classId_subjectId_date: {
             studentId: r.studentId,
             classId,
+            subjectId: subjectId || null,
             date: attendanceDate,
           }
         },
@@ -38,6 +40,7 @@ export const attendanceRepository = {
         create: {
           studentId: r.studentId,
           classId,
+          subjectId: subjectId || null,
           date: attendanceDate,
           status: r.status,
           notes: r.notes || null,

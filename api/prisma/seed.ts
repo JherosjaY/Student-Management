@@ -43,8 +43,8 @@ async function main() {
     create: {
       email: 'teacher@school.com',
       passwordHash,
-      firstName: 'Jane',
-      lastName: 'Smith',
+      firstName: 'John',
+      lastName: 'Doe',
       emailVerifiedAt: new Date(),
       userRoles: {
         create: { roleId: teacherRole.id }

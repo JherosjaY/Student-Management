@@ -7,6 +7,7 @@ import { markAttendanceSchema } from './dtos/index.js';
 const router = Router();
 
 router.get('/classes', requireAuth, controller.getClasses);
+router.get('/subjects', requireAuth, controller.getSubjects);
 router.get('/students/:classId', requireAuth, controller.getStudents);
 router.get('/:classId', requireAuth, controller.getAttendance);
 router.post('/', requireAuth, validate({ body: markAttendanceSchema }), controller.mark);
