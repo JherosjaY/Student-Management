@@ -1,0 +1,11 @@
+export const RoleGate = ({ roles, fallback = null, children }: RoleGateProps): ReactNode => {
+  const { user } = useAuth();
+  if (user === null) return fallback;
+  const allowed = user.roles.some((r) => roles.includes(r));
+  return allowed ? children : fallback;
+};
+
+// Usage:
+<RoleGate roles={['ADMIN']}>
+  <NavLink to="/users">Users</NavLink>
+</RoleGate>
